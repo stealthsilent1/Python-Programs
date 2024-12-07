@@ -5,7 +5,23 @@ BLACKJACK = 21
 COMPUTER_HIT_THRESHOLD = 17
 INITIAL_COINS = 100
 
+class Player:
+    def __init__(self, name, coins=INITIAL_COINS):
+        self.name = name
+        self.coins = coins
+        self.cards = []
+        self.total = 0
 
+    def draw_card(self):
+        """Adds a random card value to the player's hand."""
+        new_card = random.randint(2, 10)
+        self.cards.append(new_card)
+        self.total = sum(self.cards)
+
+    def reset_hand(self):
+        """Resets the player's hand for a new round."""
+        self.cards = []
+        self.total = 0
 
 
 
