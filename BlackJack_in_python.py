@@ -6,18 +6,18 @@ cards_in_deck = []
 
 
 
-players_cards = []
-computers_cards = []
-players_total = 0
-computers_total = 0
-players_coins = 100
-computers_coins = 100
+# players_cards = []
+# computers_cards = []
+# players_total = 0
+# computers_total = 0
+# players_coins = 100
+# computers_coins = 100
 
-winner = 0
-newcard = 0
-bet_amount = 0
-next_round = 0
-round_index = 1
+# winner = 0
+# newcard = 0
+# bet_amount = 0
+# next_round = 0
+# round_index = 1
 
 
 
@@ -32,133 +32,110 @@ def gen_card():
     return number
 
 def start_draw():
-    global players_total
-    new_card = gen_card()
-    players_cards.append(new_card)
-    players_total = players_total + new_card
+    players_cards = [gen_card(),gen_card()]
+    computers_cards = [gen_card(),gen_card()]
     
-    new_card = gen_card()
-    players_cards.append(new_card)
-    players_total = players_total + new_card
-    
-    global computers_total 
-    new_card = gen_card()
-    computers_cards.append(new_card)
-    computers_total = computers_total + new_card
-    
-    new_card = gen_card()
-    computers_cards.append(new_card)
-    computers_total = computers_total + new_card
+    players_total = players_cards[0] + players_cards[1]
+    computers_total = computers_cards[0] + computers_cards[1]
     
     return players_total,computers_total,players_cards,computers_cards
 
-def draw_player():
+def draw_player(players_total,players_cards):
     new_card = gen_card()
     players_cards.append(new_card)
     players_total = players_total + new_card
     
-    return players_total
+    return players_total, players_cards
     
-def draw_computer():
-    global computers_total
+def draw_computer(computers_total,computers_cards):
     new_card = gen_card()
     computers_cards.append(new_card)
     computers_total = computers_total + new_card
+    return computers_total,computers_cards
 
-
-def com_win_screen():
-    print("Game Over")
-    print("Computer Wins")
-    
-    winner = 0
-    if winner == 0:
-        computers_coins = computers_coins + bet_amount
-    next_round = 1
-    
-    players_cards = []
-    computers_cards = []
-    players_total = 0
-    computers_total = 0
-   
-    return winner, players_cards, players_coins, players_total, computers_cards, computers_coins, computers_total, bet_amount, next_round
-    
-    
-def player_win_screen():
-    print("Game Over")
-    print("You Win")
-    
-    winner = 1
-    if winner == 1:
-        players_coins = players_coins + 2*bet_amount
-        computers_coins = computers_coins - bet_amount
-    next_round = 1
-    
-    players_cards = []
-    computers_cards = []
-    players_total = 0
-    computers_total = 0
-    
-    return winner, players_cards, players_coins, players_total, computers_cards, computers_coins, computers_total, bet_amount, next_round
-    
-    
-def win_lose_check():
-    if players_total >21:
-        player_win_screen()
-    if computers_total >21:
-        com_win_screen()
-    if players_total == 21:
-        com_win_screen()
-    if computers_total == 21:
-        player_win_screen()
+def end_game_check(players_total,computers_total):
+    # Player wins
+    if (players_total > computers_total and stand == True) or computers_total >21:
+        print("Game Over")
+        print("You Win")
         
-
-def end_game_check():
-    if players_total > computers_total:
-        return player_win_screen()
-    if computers_total > players_total:
-        return com_win_screen()
-    if players_total == computers_total:
+        #change coins
+        winner = 1
+        if winner == 1:
+            players_coins = players_coins + 2*bet_amount
+            computers_coins = computers_coins - bet_amount
+        next_round = 1
+        
+        #set cards to 0
+        players_cards, computers_cards = []
+        players_total,computers_total = 0
+        
+        
+        return winner, players_cards, players_coins, players_total, computers_cards, computers_coins, computers_total, bet_amount, next_round
+    # CPU wins
+    if (computers_total > players_total and stand == True) or players_total >21:
+        print("Game Over")
+        print("Computer Wins")
+        
+        winner = 0
+        if winner == 0:
+            computers_coins = computers_coins + bet_amount
+        next_round = 1
+        
+        players_cards = []
+        computers_cards = []
+        players_total = 0
+        computers_total = 0
+    
+        return winner, players_cards, players_coins, players_total, computers_cards, computers_coins, computers_total, bet_amount, next_round
+    # Tie
+    if players_total == computers_total and stand == True:
         print("Game Over")
         print("It's a Tie")
-        global next_round
         next_round = 1
-        return 
+        return next_round
         
         
-def player_choice():
+def player_choice(players_total,players_cards):
     
-    while(1):
-        choice = input("Player, Hit or Stand? 1 for Hit, 2 for Stand ")
-        print("        ")
-        if choice == "1":
-            draw_player()
-            break
-        if choice == "2":
-            end_game_check()
-            break
-        else:
+    while True:
+        try:
+            choice = int(input("Player, Hit or Stand? 1 for Hit, 2 for Stand "))
+            print("        ")
+            if choice == 1:
+                draw_player(players_total,players_cards)
+                hit = True
+                return hit
+            if choice == 2:
+                stand = True
+                return stand
+            
+        except ValueError:
             print("Please input a valid choice, 1 or 2 without any spaces.")
             
-    return choice
         
 
-def print_board():
-    # print("Player's cards:" + str(players_cards))
-    # print("Computer's cards:" + str(computers_cards))
+def print_board(players_cards,computers_cards,players_total,computers_total):
+    print("Player's cards:" + str(players_cards))
+    print("Computer's cards:" + str(computers_cards))
     print("Player's total:" + str(players_total))
     print("Computer's total:" + str(computers_total))
 
 
-def player_bet():
+def player_bet(players_coins,computers_coins):
+      
+    print(f"Computer's Coins: {computers_coins}")
+    print(f"Player's Coins: {players_coins}")
     
-    print(f"Computer's Coins: " + str(computers_coins))
-    print(f"Player's Coins: " + str(players_coins))
     #                                 BETTING AMOUNT
+    
     valid_choice = 0
+    
     while(valid_choice == 0): #       BETTING AMOUNT
+        
         bet_amount = int(input("How much do you want to bet? "))
         
-        if bet_amount >=1 or bet_amount < players_coins:
+        if bet_amount >=1 and bet_amount <= players_coins:
             valid_choice = 1
         else:
             valid_choice = 0
@@ -166,7 +143,7 @@ def player_bet():
     
     players_coins = players_coins - bet_amount
     
-    return players_coins, bet_amount, computers_coins
+    return players_coins, bet_amount
 
     
 
@@ -182,25 +159,28 @@ def player_bet():
 
 
 #Game
-while(players_coins >0 or computers_coins >0):
-    # Match
-    start_draw()
-    print_board()
-    player_bet()
-    
-    next_round = 0
-    while(next_round == 0):
-        
-        
-        win_lose_check()
-        if winner == 1:
-            break
-        
-        player_choice()
-     
+def Game(players_coins,players_total,players_cards,computers_coins,computers_total,computers_cards):
+    while(players_coins >0 or computers_coins >0):
+        # Match
+        start_draw(players_total,computers_total)
         print_board()
+        player_bet(players_coins,computers_coins)
         
+        next_round = 0
+        while(next_round == 0):
+            
+            
+            end_game_check(players_total,computers_total)
+            if winner == 1:
+                break
+            
+            player_choice()
         
-        round_index += round_index
-        print("Round # " + str(round_index))
-        print("            ")
+            print_board()
+            
+            
+            round_index += round_index
+            print("Round # " + str(round_index))
+            print("            ")
+            
+Game()
